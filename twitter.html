@@ -3,8 +3,110 @@
   <head>
     <meta charset="utf-8">
     <title></title>
+    <style>
+    div{
+      text-align: center;
+    }
+    </style>
   </head>
   <body>
+    <div id="login">
+      <h1>Inicia sesión</h1>
+      <input id="usuarioInicio" type="text" name="username" placeholder="usuario">
+      <input id="contraseñaInicio" type="password" name="password" placeholder="contraseña">
+      <br>
+      <br>
+      <button id="entrar">Entrar</button>
+      <br>
+      <h4 id="crearUsuario" href="">Crea tu usuario</h4>
+      <br>
+      <br>
+    </div>
 
+    <div id="crearCuenta" style="display:none">
+      <h1>Crea tu usuario</h1>
+      <input id="usuario" type="text" name="username" placeholder="usuario" min="4" max="10">
+      <input id="contraseña" type="password" name="password" placeholder="contraseña" min="4" max="20">
+      <input id="foto" type="text" name="imagen" placeholder="url de tu foto">
+      <button id="crear">Crear</button>
+      <h2 id="errorCrear"></h2>
+      <br>
+      <br>
+    </div>
+
+    <div id="app" style="display:none">
+      <h1>Twitter</h1>
+      <input id="tweet" type="text" name="username" placeholder="usuario" min="1" max="140">
+      <button id="enviar">Enviar</button>
+      <br>
+      <br>
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.js"></script>
+    <script>
+
+    function iniciarSesion(){
+      $("#entrar").click(function(){
+        var usuario= $("#usuarioInicio").val();
+        var contraseña= $("#contraseñaInicio").val();
+        $.ajax({
+          url:"http://192.168.100.62:1337/login",
+          type:"POST",
+          data:{
+            username:usuario,
+            password:contraseña
+          }
+        }).done(iniciarAplicacion)
+          .fail(function(error){
+          console.log(error);
+        });
+
+      });
+    };
+
+    $("#crearUsuario").click(function(){
+      $("div#login").hide();
+      $("div#crearCuenta").show();
+      $("#crear").click(crearCuenta);
+
+    })
+
+    function crearCuenta(){
+      var usuario= $("#usuario").val();
+      var contraseña= $("#contraseña").val();
+      var imagen= $("#foto").val();
+      // if(usuario.length<4 && usuario.length>10){
+      //   $("#errorCrear").text("El usuario tiene que tener entre 4 y 10 caracteres");
+      // }
+      // else if (contraseña.length<4 && contraseña.length>20){
+      //   $("#errorCrear").text("La contraseña tiene que tener entre 4 y 20 caracteres");
+      // }
+      $.ajax({
+        url:"http://192.168.100.62:1337/usuario",
+        type:"POST",
+        data:{
+          username:usuario,
+          password:contraseña,
+          imagen:imagen
+        }
+      }).done(iniciarAplicacion)
+        .fail(function(error){
+          console.log(error);
+        });
+    };
+
+    function iniciarAplicacion(){
+      $("div#login").hide();
+      $("div#crearCuenta").hide();
+      $("div#app").show();
+      $.ajax({
+        url:"http://192.168.100.62:1337/usuario",
+        type:"GET",
+        data:{
+
+        }
+      })
+    }
+     iniciarSesion();
+    </script>
   </body>
 </html>
