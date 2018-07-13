@@ -7,6 +7,9 @@
     div{
       text-align: center;
     }
+    .mensajesCargados{
+
+    }
     </style>
   </head>
   <body>
@@ -21,6 +24,7 @@
       <h4 id="crearUsuario" href="">Crea tu usuario</h4>
       <br>
       <br>
+      <h2 id="errorLogin"></h2>
     </div>
 
     <div id="crearCuenta" style="display:none">
@@ -36,20 +40,25 @@
 
     <div id="app" style="display:none">
       <h1>Twitter</h1>
-      <input id="tweet" type="text" name="username" placeholder="usuario" min="1" max="140">
+      <input size="100" id="tweet" type="text" name="username" placeholder="Escribe tu mensaje" min="1" max="140">
       <button id="enviar">Enviar</button>
       <br>
+      <div id="mensajes">
+      </div>
       <br>
     </div>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.js"></script>
     <script>
 
     function iniciarSesion(){
+      $("div#login").show();
+      $("div#crearCuenta").hide();
+      $("div#app").hide();
       $("#entrar").click(function(){
         var usuario= $("#usuarioInicio").val();
         var contraseña= $("#contraseñaInicio").val();
         $.ajax({
-          url:"http://192.168.100.62:1337/login",
+          url:"http://192.168.100.43:1337/login",
           type:"POST",
           data:{
             username:usuario,
@@ -58,6 +67,11 @@
         }).done(iniciarAplicacion)
           .fail(function(error){
           console.log(error);
+          if(error.status===400){
+            $("#errorLogin").text("Es necesario introducir la contraseña");
+          }else if(error.status===404){
+            $("#errorLogin").text("Es necesario introducir el usuario");
+          }
         });
 
       });
@@ -81,31 +95,87 @@
       //   $("#errorCrear").text("La contraseña tiene que tener entre 4 y 20 caracteres");
       // }
       $.ajax({
-        url:"http://192.168.100.62:1337/usuario",
+        url:"http://192.168.100.43:1337/usuario",
         type:"POST",
         data:{
           username:usuario,
           password:contraseña,
           imagen:imagen
         }
-      }).done(iniciarAplicacion)
+      }).done(iniciarSesion)
         .fail(function(error){
           console.log(error);
+          if(error.responseText==="Necesito password"){
+            $("#errorCrear").text("Es necesario introducir la contraseña");
+
+          }else if(error.responseText==="Necesito username"){
+            $("#errorCrear").text("Es necesario introducir el usuario");
+
+          }else if(error.responseText==="Nombre de usuario duplicado"){
+            $("#errorCrear").text("Usuario duplicado, prueba con otro");
+          }else{
+            $("#errorCrear").text("Es necesario introducir la url de la foto");
+          }
         });
     };
 
-    function iniciarAplicacion(){
-      $("div#login").hide();
-      $("div#crearCuenta").hide();
-      $("div#app").show();
+    function iniciarAplicacion(usuario){
+      console.log(usuario)
       $.ajax({
-        url:"http://192.168.100.62:1337/usuario",
+        url:"http://192.168.100.43:1337/tweets",
         type:"GET",
         data:{
 
         }
+      }).done(function(tweets){
+        console.log(tweets);
+        tweets.forEach(function(mensajesCargados){
+        $("#mensajes").append("<div class=mensajesCargados> <h2>"+ mensajesCargados.creador.username +": </h2> <h3>"+ mensajesCargados.mensaje +"</h3> <h3 id=likes>"+ mensajesCargados.likes.length +"</h3> <button class=like data-id="+ mensajesCargados.id +" >Like</button> </div>");
       })
-    }
+    });
+      var usuarioId=usuario.id;
+      console.log(usuario);
+      $("div#login").hide();
+      $("div#crearCuenta").hide();
+      $("div#app").show();
+      $("#enviar").click(function(){
+      var mensaje= $("#tweet").val().trim();
+      $.ajax({
+        url:"http://192.168.100.43:1337/tweet",
+        type:"POST",
+        data:{
+          mensaje:mensaje,
+          usuario: usuarioId
+        }
+      }).done(function(mensajesNuevos){
+        console.log(mensajesNuevos)
+          $("#mensajes").append("<div class=mensajesCargados> <h2> "+ usuario.username +" </h2> <h3>"+ mensaje +"</h3> <h3 id=likes>0</h3> <button data-id="+ mensajesNuevos.id +" class= like>Like</button> </div>");
+      }).fail(function(error){
+        console.log(error)
+      })
+    })
+    $(document).on("click", ".like", function(event){
+      console.log("clickado")
+      var boton=$(event.currentTarget);
+      var id= boton.data("id");
+      var likes= parseInt(boton.prev().text())+1;
+      console.log(id)
+
+      $.ajax({
+        url:"http://192.168.100.43:1337/like/"+ id,
+        type:"PUT",
+        data:{
+          usuario:usuario.id,
+          
+        }
+      }).done(function(){
+
+        console.log(likes);
+        boton.prev().text(likes);
+      })
+    })
+  }
+
      iniciarSesion();
     </script>
   </body>
