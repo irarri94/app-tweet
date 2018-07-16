@@ -10,6 +10,17 @@
     .mensajesCargados{
 
     }
+    .imagen{
+      max-width:100px;
+      max-height: 200px;
+    }
+    .textoImagen{
+      text-align: left;
+      display: block;
+    }
+    .mensajesC{
+      display: inline;
+    }
     </style>
   </head>
   <body>
@@ -43,11 +54,14 @@
       <input size="100" id="tweet" type="text" name="username" placeholder="Escribe tu mensaje" min="1" max="140">
       <button id="enviar">Enviar</button>
       <br>
+      <br>
       <div id="mensajes">
       </div>
       <br>
     </div>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.2/js/bootstrap.min.js" integrity="sha384-o+RDsa0aLu++PJvFqy8fFScvbHFLtbvScb8AjopnFD+iEQ7wo/CG0xlczd+2O/em" crossorigin="anonymous"></script>
     <script>
 
     function iniciarSesion(){
@@ -58,7 +72,7 @@
         var usuario= $("#usuarioInicio").val();
         var contraseña= $("#contraseñaInicio").val();
         $.ajax({
-          url:"http://192.168.100.43:1337/login",
+          url:"http://192.168.100.65:1337/login",
           type:"POST",
           data:{
             username:usuario,
@@ -95,7 +109,7 @@
       //   $("#errorCrear").text("La contraseña tiene que tener entre 4 y 20 caracteres");
       // }
       $.ajax({
-        url:"http://192.168.100.43:1337/usuario",
+        url:"http://192.168.100.65:1337/usuario",
         type:"POST",
         data:{
           username:usuario,
@@ -122,16 +136,27 @@
     function iniciarAplicacion(usuario){
       console.log(usuario)
       $.ajax({
-        url:"http://192.168.100.43:1337/tweets",
+        url:"http://192.168.100.65:1337/tweets",
         type:"GET",
         data:{
 
         }
       }).done(function(tweets){
         console.log(tweets);
-        tweets.forEach(function(mensajesCargados){
-        $("#mensajes").append("<div class=mensajesCargados> <h2>"+ mensajesCargados.creador.username +": </h2> <h3>"+ mensajesCargados.mensaje +"</h3> <h3 id=likes>"+ mensajesCargados.likes.length +"</h3> <button class=like data-id="+ mensajesCargados.id +" >Like</button> </div>");
-      })
+        tweets.forEach(function(tweet){
+          console.log(tweet)
+          console.log(tweet.likes)
+          var texto = "Like";
+          var clase = "";
+          tweet.likes.forEach(function (like) {
+            if (like.id === usuario.id) {
+              texto = 'Dislike';
+              clase = 'clickado';
+            }
+          })
+        $("#mensajes").append('<div class="mensajesCargados"> <div class="textoImagen"> <img class="imagen" src="'+ tweet.creador.imagen +'"><h2>'+ tweet.creador.username +': </h2> </div> <div class="mensajesC"> <h3>'+ tweet.mensaje +'</h3> <h3 >'+ tweet.likes.length +'</h3> <button class="like ' + clase + '" data-id="'+ tweet.id +'" >' + texto + '</button> </div> </div>');
+
+      });
     });
       var usuarioId=usuario.id;
       console.log(usuario);
@@ -141,7 +166,7 @@
       $("#enviar").click(function(){
       var mensaje= $("#tweet").val().trim();
       $.ajax({
-        url:"http://192.168.100.43:1337/tweet",
+        url:"http://192.168.100.65:1337/tweet",
         type:"POST",
         data:{
           mensaje:mensaje,
@@ -149,33 +174,75 @@
         }
       }).done(function(mensajesNuevos){
         console.log(mensajesNuevos)
-          $("#mensajes").append("<div class=mensajesCargados> <h2> "+ usuario.username +" </h2> <h3>"+ mensaje +"</h3> <h3 id=likes>0</h3> <button data-id="+ mensajesNuevos.id +" class= like>Like</button> </div>");
+          $("#mensajes").prepend("<div class=mensajesCargados> <div class=textoImagen><img class=imagen src= "+usuario.imagen +"><h2> "+ usuario.username +" </h2> </div> <div class=mensajesC> <h3>"+ mensaje +"</h3> <h3 id=likes>0</h3> <button data-id="+ mensajesNuevos.id +" class= like>Like</button> </div> </div>");
       }).fail(function(error){
         console.log(error)
-      })
-    })
+      });
+    });
     $(document).on("click", ".like", function(event){
       console.log("clickado")
       var boton=$(event.currentTarget);
       var id= boton.data("id");
       var likes= parseInt(boton.prev().text())+1;
+
+      console.log(id)
+      if(!boton.hasClass("clickado")){
+        $.ajax({
+          url:"http://192.168.100.65:1337/like/"+ id,
+          type:"PUT",
+          data:{
+            usuario:usuario.id,
+
+          }
+        }).done(function(li){
+          console.log(li)
+          // console.log(likes);
+          boton.prev().text(likes);
+          boton.text("Dislike");
+          boton.addClass("clickado")
+
+        }).fail(function(error){
+          console.log(error);
+          if(error.status===400){
+            alert("Ya le has dado like al tweet");
+          }
+        })
+      }
+    })
+    $(document).on("click", ".like", function(event){
+      var boton=$(event.currentTarget);
+      var id= boton.data("id");
+      var likes= parseInt(boton.prev().text())-1;
       console.log(id)
 
-      $.ajax({
-        url:"http://192.168.100.43:1337/like/"+ id,
-        type:"PUT",
-        data:{
-          usuario:usuario.id,
-          
-        }
-      }).done(function(){
+      // console.log(mensajesNuevos)
+      if(boton.hasClass("clickado")){
+        $.ajax({
+          url:"http://192.168.100.65:1337/dislike/"+ id,
+          type:"PUT",
+          data:{
+            usuario:usuario.id,
 
-        console.log(likes);
-        boton.prev().text(likes);
-      })
+          }
+        }).done(function(){
+          console.log(likes);
+          boton.prev().text(likes);
+          boton.text("Like");
+          boton.removeClass("clickado")
+
+        })
+        // .fail(function(error){
+        //   console.log(error);
+        //   if(error.status===400){
+        //     alert("Ya le has dado like al tweet");
+        //   }
+        // })
+      }
     })
   }
 
+
+// }
      iniciarSesion();
     </script>
   </body>
