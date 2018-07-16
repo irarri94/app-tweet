@@ -22,6 +22,7 @@
       display: inline;
     }
     </style>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.2/css/bootstrap.min.css" integrity="sha384-Smlep5jCw/wG7hdkwQ/Z5nLIefveQRIY9nfy6xoR1uRYBtpZgI6339F5dgvm/e9B" crossorigin="anonymous">
   </head>
   <body>
     <div id="login">
@@ -154,7 +155,7 @@
               clase = 'clickado';
             }
           })
-        $("#mensajes").append('<div class="mensajesCargados"> <div class="textoImagen"> <img class="imagen" src="'+ tweet.creador.imagen +'"><h2>'+ tweet.creador.username +': </h2> </div> <div class="mensajesC"> <h3>'+ tweet.mensaje +'</h3> <h3 >'+ tweet.likes.length +'</h3> <button class="like ' + clase + '" data-id="'+ tweet.id +'" >' + texto + '</button> </div> </div>');
+        $("#mensajes").append('<div class="mensajesCargados" > <div class="textoImagen"> <img class="imagen" src="'+ tweet.creador.imagen +'"><h2>'+ tweet.creador.username +': </h2> </div> <div class="mensajesC"> <h3>'+ tweet.mensaje +'</h3> <h3 >'+ tweet.likes.length +'</h3> <button class="like ' + clase + '" data-id="'+ tweet.id +'" >' + texto + '</button> </div> </div>');
 
       });
     });
@@ -174,7 +175,7 @@
         }
       }).done(function(mensajesNuevos){
         console.log(mensajesNuevos)
-          $("#mensajes").prepend("<div class=mensajesCargados> <div class=textoImagen><img class=imagen src= "+usuario.imagen +"><h2> "+ usuario.username +" </h2> </div> <div class=mensajesC> <h3>"+ mensaje +"</h3> <h3 id=likes>0</h3> <button data-id="+ mensajesNuevos.id +" class= like>Like</button> </div> </div>");
+          $("#mensajes").prepend("<div class=mensajesCargados > <div class=textoImagen><img class=imagen src= "+usuario.imagen +"><h2> "+ usuario.username +" </h2> </div> <div class=mensajesC> <h3>"+ mensaje +"</h3> <h3 id=likes>0</h3> <button data-id="+ mensajesNuevos.id +" class= like>Like</button> </div> </div>");
       }).fail(function(error){
         console.log(error)
       });
@@ -231,18 +232,10 @@
           boton.removeClass("clickado")
 
         })
-        // .fail(function(error){
-        //   console.log(error);
-        //   if(error.status===400){
-        //     alert("Ya le has dado like al tweet");
-        //   }
-        // })
       }
     })
   }
 
-
-// }
      iniciarSesion();
     </script>
   </body>
