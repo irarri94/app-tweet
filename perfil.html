@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title></title>
+    <style>
+    div{
+      text-align: center;
+    }
+    .fotoPerfil{
+      max-width:100px;
+      max-height: 70px;
+    }
+    </style>
+  </head>
+  <body>
+    <div>
+    <h2>Busqueda de usuarios</h2>
+    <input id="buscarUsuario"name="username" type="text" value="iraide">
+    <button id="buscar">Buscar</button>
+  </div>
+  <div id="cargarPerfil">
+  </div>
+  <div id="cargarTweets" style="display:none">
+  </div>
+  <div id="cargarLikes" style="display:none">
+  </div>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.2/js/bootstrap.min.js" integrity="sha384-o+RDsa0aLu++PJvFqy8fFScvbHFLtbvScb8AjopnFD+iEQ7wo/CG0xlczd+2O/em" crossorigin="anonymous"></script>
+  <script>
+
+  var username=$("#buscarUsuario").val().trim();
+  
+  $("#buscar").click(function(usuario){
+    console.log(usuario)
+
+    $.ajax({
+      url: "http://192.168.100.31:1337/usuario/" + username,
+      type:"GET",
+      data:{
+
+      }
+    }).done(function(perfil){
+      console.log(perfil)
+      $("#cargarPerfil").html('<img width="110" height="120" class="imagen" src= "'+perfil.imagen +'"><h2> '+ perfil.username +' </h2> <h3 class="likesUsuario">'+ perfil.likes.length +' likes</h3> <h3 class="tweetsUsuario">'+ perfil.tweets.length +' tweets </h3>')
+      $("#cargarLikes").hide();
+      $("#cargarTweets").show();
+      perfil.tweets.forEach(function(tweets){
+        $("#cargarTweets").append('<div class="tweet card w-75" class="mensajesCargados"> <div class= "card-body"> <img width="110" height="120" class="imagen" src= "'+tweets.creador.imagen +'"><h2 class="card-title"> '+ tweets.creador.username +' </h2> <h3 class="card-text">'+ tweets.mensaje +'</h3> <h3 id="likes">0</h3></div>')
+      })
+      perfil.likes.forEach(function(tweetlike){
+      console.log(tweetlike)
+        $("#cargarLikes").append('<div class="tweet card w-75" class="mensajesCargados"> <div class= "card-body"> <img width="110" height="120" class="imagen" src= "'+tweetlike.creador.imagen +'"><h2 class="card-title"> "'+ tweetlike.creador.username +'" </h2> <h3 class="card-text">'+ tweetlike.mensaje +'</h3> <h3 id="likes">0</h3></div>')
+      })
+      perfil.tweets.forEach(function(tweets){
+        console.log(tweets)
+        $("#cargarLikes").append('<div class="tweet card w-75" class="mensajesCargados"> <div class= "card-body"> <img width="110" height="120" class="imagen" src= "'+tweets.creador.imagen +'"><h2 class="card-title"> "'+ tweets.creador.username +'" </h2> <h3 class="card-text">'+ tweets.mensaje +'</h3> <h3 id="likes">0</h3></div>')
+      })
+    }).fail(function(error){
+
+    })
+  });
+  $(document).on("click", ".likesUsuario", function(){
+    $("#cargarLikes").show();
+    $("#cargarTweets").hide();
+  })
+  $(document).on("click", ".tweetsUsuario", function(){
+    $("#cargarLikes").hide();
+    $("#cargarTweets").show();
+  })
+
+  </script>
+  </body>
+</html>

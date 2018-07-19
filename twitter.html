@@ -4,24 +4,19 @@
     <meta charset="utf-8">
     <title></title>
     <style>
-    div{
-      text-align: center;
+
+    .tweet {
+      margin:0 auto;
     }
-    .mensajesCargados{
+    #textarea{
+      margin:0 auto;
 
     }
-    .imagen{
-      max-width:100px;
-      max-height: 200px;
-    /* }
-    .textoImagen{
-      text-align: left;
-      display: block;
+    #app{
+
+      margin:0 auto;
     }
-    .mensajesC{
-      display: inline; */
-    }
-    .card w-75{
+    #zalla{
       text-align: center;
     }
     </style>
@@ -54,9 +49,17 @@
     </div>
 
     <div id="app" style="display:none">
-      <h1>Twitter</h1>
-      <input size="100" id="tweet" type="text" name="username" placeholder="Escribe tu mensaje" min="1" max="140">
-      <button id="enviar">Enviar</button>
+      <h1 id="zalla">Twitter Zalla</h1>
+      <a href="C:/Users/Admin/Desktop/Iraide/twitter/perfil.html">Busca usuarios</a>
+      <div class="form-inline">
+      <div class="form-group mb-2" id="textarea">
+      <textarea maxlength="140" rows="6" cols="100" id="tweet" type="text" placeholder="Escribe tu mensaje"></textarea>
+      </div>
+      <h4 id="contador">140</h4>
+      <br>
+      <button id="enviar" class="btn btn-primary mb-2">Enviar</button>
+
+      </div>
       <br>
       <br>
       <div id="mensajes" >
@@ -76,7 +79,7 @@
         var usuario= $("#usuarioInicio").val();
         var contraseña= $("#contraseñaInicio").val();
         $.ajax({
-          url:"http://192.168.100.65:1337/login",
+          url:"http://192.168.100.31:1337/login",
           type:"POST",
           data:{
             username:usuario,
@@ -113,7 +116,7 @@
       //   $("#errorCrear").text("La contraseña tiene que tener entre 4 y 20 caracteres");
       // }
       $.ajax({
-        url:"http://192.168.100.65:1337/usuario",
+        url:"http://192.168.100.31:1337/usuario",
         type:"POST",
         data:{
           username:usuario,
@@ -140,7 +143,7 @@
     function iniciarAplicacion(usuario){
       console.log(usuario)
       $.ajax({
-        url:"http://192.168.100.65:1337/tweets",
+        url:"http://192.168.100.31:1337/tweets",
         type:"GET",
         data:{
 
@@ -158,7 +161,8 @@
               clase = 'clickado';
             }
           })
-        $("#mensajes").append('<div class="mensajesCargados" class="card" class="container-fluid" style="max-width: 18rem"> <img class="imagen" src="'+ tweet.creador.imagen +'"><h2 class="card-header">'+ tweet.creador.username +': </h2> <h3 class="card-text">'+ tweet.mensaje +'</h3> <h3 >'+ tweet.likes.length +'</h3> <button class="like ' + clase + '" data-id="'+ tweet.id +'" >' + texto + '</button> </div>');
+
+        $("#mensajes").append('<div class="tweet card w-75" class="mensajesCargados"> <div class= "card-body"> <img width="110" height="120" class="imagen" src="'+ tweet.creador.imagen +'"><h2 class="card-title">'+ tweet.creador.username +': </h2>  <h3 class="card-text">'+ tweet.mensaje +'</h3> <h3 >'+ tweet.likes.length +'</h3> <button class="like ' + clase + '" data-id="'+ tweet.id +'" >' + texto + '</button><button data-id="'+ tweet.id +'" class="eliminar">Eliminar</button></div>');
 
       });
     });
@@ -170,7 +174,7 @@
       $("#enviar").click(function(){
       var mensaje= $("#tweet").val().trim();
       $.ajax({
-        url:"http://192.168.100.65:1337/tweet",
+        url:"http://192.168.100.31:1337/tweet",
         type:"POST",
         data:{
           mensaje:mensaje,
@@ -178,7 +182,8 @@
         }
       }).done(function(mensajesNuevos){
         console.log(mensajesNuevos)
-          $("#mensajes").prepend('<div class="mensajesCargados" class="card w-75" class="card-body"class="card border-primary mb-3" style="max-width: 18rem;"><img class="imagen" src= "'+usuario.imagen +'"><h2 class="card-header"> '+ usuario.username +' </h2> <h3 class="card-text">'+ mensaje +'</h3> <h3 id="likes">0</h3> <button class= "like" data-id='+ mensajesNuevos.id +' >Like</button></div>');
+          $("#mensajes").prepend('<div class="tweet card w-75" class="mensajesCargados"> <div class= "card-body"> <img width="110" height="120" class="imagen" src= "'+usuario.imagen +'"><h2 class="card-title"> "'+ usuario.username +'" </h2> <h3 class="card-text">'+ mensaje +'</h3> <h3 id="likes">0</h3> <button class= "like" data-id="'+ mensajesNuevos.id +'" >Like</button><button data-id="'+ mensajesNuevos.id +'" class="eliminar">Eliminar</button></div>');
+          $("#tweet").val("");
       }).fail(function(error){
         console.log(error)
       });
@@ -192,7 +197,7 @@
       console.log(id)
       if(!boton.hasClass("clickado")){
         $.ajax({
-          url:"http://192.168.100.65:1337/like/"+ id,
+          url:"http://192.168.100.31:1337/like/"+ id,
           type:"PUT",
           data:{
             usuario:usuario.id,
@@ -222,7 +227,7 @@
       // console.log(mensajesNuevos)
       if(boton.hasClass("clickado")){
         $.ajax({
-          url:"http://192.168.100.65:1337/dislike/"+ id,
+          url:"http://192.168.100.31:1337/dislike/"+ id,
           type:"PUT",
           data:{
             usuario:usuario.id,
@@ -237,9 +242,39 @@
         })
       }
     })
+    $("textarea").on("input", function(event){
+      var texto= $("textarea").val();
+      var contador= 140-texto.length;
+      console.log(contador)
+       if(contador<=0){
+         $("#contador").text(contador).css("color","red");
+       }else {
+         $("#contador").text(contador).css("color","black");
+       }
+    })
+    $(document).on("click",".eliminar", function(event){
+      var boton=$(event.currentTarget);
+      var id= boton.data("id");
+      console.log(id)
+      $.ajax({
+        url:"http://192.168.100.31:1337/tweet/"+id,
+        type:"DELETE",
+        data:{
+          usuario:usuario.id,
+        }
+      }).done(function(){
+        boton.parent().remove();
+      }).fail(function(error){
+        if(error.status===403){
+          alert("No puedes borrar tweets de otros usuarios");
+        }
+        console.log(error);
+      })
+    })
   }
 
      iniciarSesion();
+     $('#entrar').trigger('click')
     </script>
   </body>
 </html>
