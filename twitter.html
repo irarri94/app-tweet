@@ -79,7 +79,7 @@
         var usuario= $("#usuarioInicio").val();
         var contraseña= $("#contraseñaInicio").val();
         $.ajax({
-          url:"http://192.168.100.31:1337/login",
+          url:"http://192.168.100.26:1337/login",
           type:"POST",
           data:{
             username:usuario,
@@ -116,7 +116,7 @@
       //   $("#errorCrear").text("La contraseña tiene que tener entre 4 y 20 caracteres");
       // }
       $.ajax({
-        url:"http://192.168.100.31:1337/usuario",
+        url:"http://192.168.100.26:1337/usuario",
         type:"POST",
         data:{
           username:usuario,
@@ -143,7 +143,7 @@
     function iniciarAplicacion(usuario){
       console.log(usuario)
       $.ajax({
-        url:"http://192.168.100.31:1337/tweets",
+        url:"http://192.168.100.26:1337/tweets",
         type:"GET",
         data:{
 
@@ -174,7 +174,7 @@
       $("#enviar").click(function(){
       var mensaje= $("#tweet").val().trim();
       $.ajax({
-        url:"http://192.168.100.31:1337/tweet",
+        url:"http://192.168.100.26:1337/tweet",
         type:"POST",
         data:{
           mensaje:mensaje,
@@ -197,7 +197,7 @@
       console.log(id)
       if(!boton.hasClass("clickado")){
         $.ajax({
-          url:"http://192.168.100.31:1337/like/"+ id,
+          url:"http://192.168.100.26:1337/like/"+ id,
           type:"PUT",
           data:{
             usuario:usuario.id,
@@ -227,7 +227,7 @@
       // console.log(mensajesNuevos)
       if(boton.hasClass("clickado")){
         $.ajax({
-          url:"http://192.168.100.31:1337/dislike/"+ id,
+          url:"http://192.168.100.26:1337/dislike/"+ id,
           type:"PUT",
           data:{
             usuario:usuario.id,
@@ -257,7 +257,7 @@
       var id= boton.data("id");
       console.log(id)
       $.ajax({
-        url:"http://192.168.100.31:1337/tweet/"+id,
+        url:"http://192.168.100.26:1337/tweet/"+id,
         type:"DELETE",
         data:{
           usuario:usuario.id,
